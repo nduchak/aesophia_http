@@ -20,6 +20,22 @@ Interface paths:
 
 /api - Return the API description.
 
+## Examples
+
+In all the following examples we use the contract `SimpleStorage`
+defined as:
+
+```
+contract SimpleStorage =
+  record state = { data : int }
+  function init(value : int) : state = { data = value }
+  function get() : int = state.data
+  function set(value : int) = put(state{data = value})
+```
+
+To make the example calls easier to read we have bound the shell
+variable `$contract` to the contract definition:
+
 ```
 contract="contract SimpleStorage =
   record state = { data : int }
@@ -28,11 +44,18 @@ contract="contract SimpleStorage =
   function set(value : int) = put(state{data = value})"
 ```
 
+To get the ACI of the contract we use the `/aci` interface:
+
 ```
 curl -H "Content-Type: application/json" -d "{\"code\":\"$contract\",\"options\":{}}" -X POST http://localhost:3080/aci
 
 {"encoded_aci":{"contract":{"name":"SimpleStorage","type_defs":[{"name":"state","vars":[],"typedef":"{data : int}"}],"functions":[{"name":"init","arguments":[{"name":"value","type":"int"}],"type":"{data : int}","stateful":false},{"name":"get","arguments":[],"type":"int","stateful":false},{"name":"set","arguments":[{"name":"value","type":"int"}],"type":"()","stateful":false}]}},"interface":"contract SimpleStorage =\n  function get : () => int\n  function set : (int) => ()\n"}
 ```
+
+This returns a structure with two fields: `encoded_aci` is a
+description of the contract containing the types and functions;
+`interface` is a definition of the contract suitable to be included in
+other contracts.
 
 ```
 curl -H "Content-Type: application/json" -d "{\"code\":\"$contract\",\"options\":{}}" -X POST http://localhost:3080/compile
